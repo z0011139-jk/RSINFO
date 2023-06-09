@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>订单明细</title>
+    {% include 'admin/common/header.html' %}</head>
+<body>
+<div class="layui-card">
+    <div class="layui-card-body">
+        <table id="sellDetail-table" lay-filter="sellDetail-table"></table>
+    </div>
+</div>
+</body>
+{% include 'admin/common/footer.html' %}
+<script type="text/html" id="sellDetail-toolbar">
+    {% if authorize("admin:sell:add") %}
+        <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="add">
+            <i class="pear-icon pear-icon-add"></i>
+            新增
+        </button>
+    {% endif %}
+    {% if authorize("admin:sell:remove") %}
+        <button class="pear-btn pear-btn-md" lay-event="batchRemove">
+            <i class="pear-icon pear-icon-ashbin"></i>
+            删除
+        </button>
+    {% endif %}
+</script>
+<script type="text/html" id="sellDetail-bar">
+    {% if authorize("admin:sell:detail:edit") %}
+        <button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="edit"><i
+                class="pear-icon pear-icon-edit"></i>
+        </button>
+    {% endif %}
+    {% if authorize("admin:sell:detail:remove") %}
+        <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove"><i
+                class="pear-icon pear-icon-ashbin"></i>
+        </button>
+    {% endif %}
+</script>
+<script type="text/html" id="sell-createTime">
+    {{ '  {{layui.util.toDateString(d.create_at,  "yyyy-MM-dd HH:mm:ss")}' |safe }}}
+</script>
+<script type="text/html" id="sell-updateTime">
+    {{ '  {{layui.util.toDateString(d.update_at,  "yyyy-MM-dd HH:mm:ss")}' |safe }}}
+</script>
+<script>
+  layui.use(['table', 'dtree', 'form', 'jquery', 'popup', 'common'], function () {
+    let table = layui.table
+    let form = layui.form
+    let $ = layui.jquery
+    let dtree = layui.dtree
+    let popup = layui.popup
+    let common = layui.common
+    let MODULE_PATH = '/admin/sell/'
+
+    // 表格数据
+    let cols = [
+      [
+        {% if authorize("admin:sell:detail:remove") %}
+          { type: 'checkbox' },
+        {% endif %}
+        { title: '物料代码', field: 'materialNo', align: 'center', width: 120 },
+        { title: '数量', field: 'qty', align: 'center', width: 80 },
+        { title: '备注', field: 'remark', align: 'center' },
+        { title: '创建时间', field: 'create_at', templet: '#sell-createTime', align: 'center' },
+        { title: '更新时间', field: 'update_at', templet: '#sell-updateTime', align: 'center' },
+        { title: '操作', toolbar: '#sellDetail-bar', align: 'center', width: 120 }
+      ]
+    ]
+
+    // 渲染表格数据
+    table.render({
+      elem: '#sellDetail-table',
+      url: MODULE_PATH + 'detail/data/'  + {{orderid}} ,
+      page: true,
+      cols: cols,
+      skin: 'line',
+      height: 'full-54',
+      toolbar: '#sellDetail-toolbar', /*工具栏*/
+      text: { none: '暂无订单明细信息' },
+      defaultToolbar: [{ layEvent: 'refresh', icon: 'layui-icon-refresh' }, 'filter', 'print', 'exports'] /*默认工具栏*/
+    })
+
+    table.on('tool(sellDetail-table)', function (obj) {
+      if (obj.event === 'remove') {
+        window.remove(obj)
+      } else if (obj.event === 'edit') {
+        window.edit(obj)
+      }
+    })
+
+    table.on('toolbar(sellDetail-table)', function (obj) {
+      if (obj.event === 'add') {
+        window.add()
+      } else if (obj.event === 'refresh') {
+        window.refresh()
+      } else if (obj.event === 'batchRemove') {
+        window.batchRemove(obj)
+      }
+    })
+
+    window.add = function () {
+      layer.open({
+        type: 2,
+        title: '新增',
+        shade: 0.1,
+        area: ['550px', '340px'],
+        content: MODULE_PATH + 'detail/add/' + {{orderid}}
+      })
+    }
+
+    window.edit = function (obj) {
+      layer.open({
+        type: 2,
+        title: '修改',
+        shade: 0.1,
+        area: ['550px', '340px'],
+        content: MODULE_PATH + 'detail/edit/' + obj.data['id']
+      })
+    }
+
+    window.remove = function (obj) {
+      layer.confirm('确定要删除该物料', { icon: 3, title: '提示' }, function (index) {
+        layer.close(index)
+        let loading = layer.load()
+        $.ajax({
+          url: MODULE_PATH + 'detail/remove/' + obj.data['id'],
+          dataType: 'json',
+          type: 'delete',
+          success: function (result) {
+            layer.close(loading)
+            if (result.success) {
+              popup.success(result.msg, function () {
+                obj.del()
+              })
+            } else {
+              popup.failure(result.msg)
+            }
+          }
+        })
+      })
+    }
+
+    window.batchRemove = function (obj) {
+      let data = table.checkStatus(obj.config.id).data
+      if (data.length === 0) {
+        layer.msg('未选中数据', {
+          icon: 3,
+          time: 1000
+        })
+        return false
+      }
+      var ids = []
+      var hasCheck = table.checkStatus('sellDetail-table')
+      var hasCheckData = hasCheck.data
+      if (hasCheckData.length > 0) {
+        $.each(hasCheckData, function (index, element) {
+          ids.push(element.id)
+        })
+      }
+      {#console.log(ids);#}
+      layer.confirm('确定要删除选中物料', {
+        icon: 3,
+        title: '提示'
+      }, function (index) {
+        layer.close(index)
+        let loading = layer.load()
+        $.ajax({
+
+          url: MODULE_PATH + 'detail/batchRemove',
+          data: { ids: ids },
+          dataType: 'json',
+          type: 'delete',
+          success: function (result) {
+            layer.close(loading)
+            if (result.success) {
+              popup.success(result.msg, function () {
+                table.reload('sellDetail-table')
+              })
+            } else {
+              popup.failure(result.msg)
+            }
+          }
+        })
+      })
+    }
+
+    window.refresh = function (param) {
+      table.reload('sellDetail-table', { where: param })
+    }
+  })
+</script>
+</html>
