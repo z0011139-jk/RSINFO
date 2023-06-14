@@ -138,12 +138,12 @@ def adddetail(id):
 def savedetail():
     req = request.get_json(force=True)
     orderid = str_escape(req.get("orderid"))
-    materialNo = str_escape(req.get("materialNo"))
+    materialName = str_escape(req.get("materialName"))
     qty = str_escape(req.get("qty"))
     remark = str_escape(req.get("remark"))
     selldetail = SellDetail(
         sellOrderId=orderid,
-        materialNo=materialNo,
+        materialName=materialName,
         qty=qty,
         remark=remark
     )

@@ -11,3 +11,4 @@ from .admin_mail import Mail
 
 from .admin_sell import Sell
 from .admin_selldetail import SellDetail
+from  .bus_material import Material

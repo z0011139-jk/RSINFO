@@ -8,16 +8,19 @@
     <div class="mainBox">
         <div class="main-container">
             <div class="layui-form-item">
-                <label class="layui-form-label">物料代码</label>
-                <div class="layui-input-block">
-                    <input type="text" name="materialNo" lay-verify="title" autocomplete="off" placeholder="请输入物料代码"
-                           class="layui-input">
-                </div>
+              <label class="layui-form-label">物料名称</label>
+              <div class="layui-input-block">
+                <input type="text" name="materialName" id="materialName" class="layui-input" lay-verify="required"
+                 style="position:absolute;z-index:2;width:90%;" value="" autocomplete="off" placeholder="请输入物料名称">
+                 <select id="materials" placeholder="请输入名称搜索" name="materials"  lay-filter="materials" >
+                    <option value="">请输入名称搜索</option>
+                </select>
+              </div>
             </div>
             <div class="layui-form-item">
                 <label class="layui-form-label">数量</label>
                 <div class="layui-input-block">
-                    <input type="text" name="qty" lay-verify="title" autocomplete="off" placeholder="请输入数量"
+                    <input type="text" name="qty" lay-verify="required" autocomplete="off" placeholder="请输入数量"
                            class="layui-input">
                 </div>
             </div>
@@ -43,10 +46,60 @@
     </div>
 </form>
 {% include 'admin/common/footer.html' %}
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.1.0.min.js"></script>
 <script>
+    // 用于缓存下拉获取的数据
+    let dropData
+    let currentValue = -1
+
+    // 渲染下拉框的数据
+    function innitSelect(name,data){
+        let html=''
+        if(data&&data instanceof Array){
+          data.forEach(item=>{
+            html+="<option value="+item.value+">"+item.text+"</option>"
+          })
+        };
+        $(name).html(html)
+    }
+
+    function getData(){
+        return new Promise(resolve=>{
+            $.ajax({
+                url: '/bus/material/data?queryStr=' + $("#materialName").val(),
+                data: {},
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'get',
+                success: function (result) {
+                    let arr=[]
+                    for(let i=0;i<result.data.length;i++){
+                        let obj={}
+                        obj.value=result.data[i].id
+                        obj.text=result.data[i].MaterialName
+                        arr.push(obj)
+                    }
+                    resolve(arr)
+                }
+            })
+        })
+    }
+
+    $("#materialName").on("input propertychange",async function(e){
+        // 模拟请求获取下拉菜单所需的参数
+        dropData = await getData()
+        console.log("下拉菜单的数据：",dropData)
+        // 将获取回来的数据渲染给下拉菜单
+        innitSelect("#materials",dropData)
+        let form = layui.form;
+        form.render()
+        // 将下拉框展开
+        $(".layui-form-select").addClass("layui-form-selected")
+    });
+
   layui.use(['form', 'jquery'], function () {
     let form = layui.form
-    let $ = layui.jquery
+    let jquery = layui.jquery
 
     form.on('submit(selldetail-save)', function (data) {
       data.field.orderid={{orderid}}
@@ -69,6 +122,14 @@
       })
       return false
     })
+
+    form.on("select(materials)",function(data){
+        let value=data.value
+          let selectObj=dropData.filter(item=>{
+            return item.value==value
+          })
+        $("#materialName").val(selectObj[0].text);
+        })
   })
 </script>
 </body>

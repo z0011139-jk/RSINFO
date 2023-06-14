@@ -8,3 +8,4 @@ from .admin_mail import MailOutSchema
 
 from .admin_sell import SellOutSchema
 from .admin_selldetail import SellDetailSchema
+from .bus_material import MaterialSchema

@@ -11,6 +11,7 @@ from applications.view.admin.monitor import admin_monitor_bp
 from applications.view.admin.mail import admin_mail
 
 from applications.view.admin.sell import admin_sell
+from applications.view.bus.material import bus_material
 
 def register_admin_views(app: Flask):
     app.register_blueprint(admin_bp)
