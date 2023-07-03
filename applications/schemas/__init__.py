@@ -6,6 +6,7 @@ from .admin_log import LogOutSchema
 from .admin_photo import PhotoOutSchema
 from .admin_mail import MailOutSchema
 
-from .admin_sell import SellOutSchema
-from .admin_selldetail import SellDetailSchema
+from .bus_sell import SellOutSchema
+from .bus_selldetail import SellDetailSchema
 from .bus_material import MaterialSchema
+from .bus_contact import ContactSchema

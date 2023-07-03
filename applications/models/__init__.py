@@ -9,6 +9,7 @@ from .admin_user import User
 from .admin_user_role import user_role
 from .admin_mail import Mail
 
-from .admin_sell import Sell
-from .admin_selldetail import SellDetail
-from  .bus_material import Material
+from .bus_sell import Sell
+from .bus_selldetail import SellDetail
+from .bus_material import Material
+from .bus_contact import Contact

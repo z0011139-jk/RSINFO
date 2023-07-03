@@ -11,18 +11,18 @@ from applications.extensions import db
 from applications.models import Sell, SellDetail
 from applications.schemas import SellOutSchema, SellDetailSchema
 
-admin_sell = Blueprint('adminSell', __name__, url_prefix='/admin/sell')
+bus_sell = Blueprint('busSell', __name__, url_prefix='/bus/sell')
 
 
 # 销售单管理
-@admin_sell.get('/')
+@bus_sell.get('/')
 @authorize("admin:sell:main")
 def main():
-    return render_template('admin/sell/main.html')
+    return render_template('bus/sell/main.html')
 
 
 # 表格数据
-@admin_sell.get('/data')
+@bus_sell.get('/data')
 @authorize("admin:sell:main")
 def table():
     sellOrderNo = str_escape(request.args.get('sellOrderNo', type=str))
@@ -34,14 +34,14 @@ def table():
 
 
 # 销售单增加
-@admin_sell.get('/add')
+@bus_sell.get('/add')
 @authorize("admin:sell:add", log=True)
 def add():
-    return render_template('admin/sell/add.html')
+    return render_template('bus/sell/add.html')
 
 
 # 销售单增加
-@admin_sell.post('/save')
+@bus_sell.post('/save')
 @authorize("admin:sell:add", log=True)
 def save():
     req = request.get_json(force=True)
@@ -63,15 +63,15 @@ def save():
 
 
 # 销售单编辑
-@admin_sell.get('/edit/<int:id>')
+@bus_sell.get('/edit/<int:id>')
 @authorize("admin:sell:edit", log=True)
 def edit(id):
     s = get_one_by_id(model=Sell, id=id)
-    return render_template('admin/sell/edit.html', sell=s)
+    return render_template('bus/sell/edit.html', sell=s)
 
 
 # 更新销售单
-@admin_sell.put('/update')
+@bus_sell.put('/update')
 @authorize("admin:sell:edit", log=True)
 def update():
     req_json = request.get_json(force=True)
@@ -87,14 +87,14 @@ def update():
 
 
 # 销售单明细
-@admin_sell.get('/detail/<int:id>')
+@bus_sell.get('/detail/<int:id>')
 @authorize("admin:sell:detail", log=True)
 def detail(id):
-    return render_template('admin/sell/detail.html', orderid=id)
+    return render_template('bus/sell/detail.html', orderid=id)
 
 
 # 销售单删除
-@admin_sell.delete('/remove/<int:id>')
+@bus_sell.delete('/remove/<int:id>')
 @authorize("admin:sell:remove", log=True)
 def remove(id):
     s = Sell.query.filter_by(id=id).delete()
@@ -105,7 +105,7 @@ def remove(id):
 
 
 # 批量删除
-@admin_sell.delete('/batchRemove')
+@bus_sell.delete('/batchRemove')
 @authorize("admin:sell:remove", log=True)
 def batch_remove():
     ids = request.form.getlist('ids[]')
@@ -118,7 +118,7 @@ def batch_remove():
 ######################################################  detail ########################################################
 
 # 明细数据
-@admin_sell.get('detail/data/<int:id>')
+@bus_sell.get('detail/data/<int:id>')
 @authorize("admin:sell:detail")
 def detailtable(id):
     selldetails = SellDetail.query.filter_by(sellOrderId=id).layui_paginate()
@@ -126,14 +126,14 @@ def detailtable(id):
 
 
 # 销售单明细增加
-@admin_sell.get('/detail/add/<int:id>')
+@bus_sell.get('/detail/add/<int:id>')
 @authorize("admin:sell:detail:add", log=True)
 def adddetail(id):
-    return render_template('admin/sell/adddetail.html', orderid=id)
+    return render_template('bus/sell/adddetail.html', orderid=id)
 
 
 # 销售单增加
-@admin_sell.post('/detail/save')
+@bus_sell.post('/detail/save')
 @authorize("admin:sell:detail:add", log=True)
 def savedetail():
     req = request.get_json(force=True)
@@ -152,14 +152,14 @@ def savedetail():
     return success_api(msg="成功")
 
 # 销售单明细编辑
-@admin_sell.get('/detail/edit/<int:id>')
+@bus_sell.get('/detail/edit/<int:id>')
 @authorize("admin:sell:detail:edit", log=True)
 def editdetail(id):
     sd = get_one_by_id(model=SellDetail, id=id)
-    return render_template('admin/sell/editdetail.html', selldetail=sd)
+    return render_template('bus/sell/editdetail.html', selldetail=sd)
 
 # 更新销售单明细
-@admin_sell.put('/detail/update')
+@bus_sell.put('/detail/update')
 @authorize("admin:sell:detail:edit", log=True)
 def updatedetail():
     req_json = request.get_json(force=True)
@@ -176,7 +176,7 @@ def updatedetail():
     return success_api(msg="更新销售单明细成功")
 
 # 销售单明细删除
-@admin_sell.delete('/detail/remove/<int:id>')
+@bus_sell.delete('/detail/remove/<int:id>')
 @authorize("admin:sell:detail:remove", log=True)
 def removedetail(id):
     sd = SellDetail.query.filter_by(id=id).delete()
@@ -186,7 +186,7 @@ def removedetail(id):
     return success_api(msg="销售单明细删除成功")
 
 # 批量删除
-@admin_sell.delete('/detail/batchRemove')
+@bus_sell.delete('/detail/batchRemove')
 @authorize("admin:sell:detail:remove", log=True)
 def detailbatch_remove():
     ids = request.form.getlist('ids[]')

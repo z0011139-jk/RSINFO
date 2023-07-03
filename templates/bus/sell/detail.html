@@ -1,41 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <title>销售订单</title>
-    {% include 'admin/common/header.html' %}
-</head>
-<body class="pear-container">
-{# 查询表单 #}
+    <title>订单明细</title>
+    {% include 'admin/common/header.html' %}</head>
+<body>
 <div class="layui-card">
     <div class="layui-card-body">
-        <form class="layui-form" action="" lay-filter="sell-query-form">
-            <div class="layui-form-item">
-                <label class="layui-form-label">订单编号</label>
-                <div class="layui-input-inline">
-                    <input type="text" name="sellOrderNo" placeholder="" class="layui-input">
-                </div>
-
-                <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="sell-query">
-                    <i class="layui-icon layui-icon-search"></i>
-                    查询
-                </button>
-                <button type="reset" class="pear-btn pear-btn-md">
-                    <i class="layui-icon layui-icon-refresh"></i>
-                    重置
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-{# 销售订单表格 #}
-<div class="layui-card">
-    <div class="layui-card-body">
-        <table id="sell-table" lay-filter="sell-table"></table>
+        <table id="sellDetail-table" lay-filter="sellDetail-table"></table>
     </div>
 </div>
 </body>
-{# 表格操作 #}
-<script type="text/html" id="sell-toolbar">
+{% include 'admin/common/footer.html' %}
+<script type="text/html" id="sellDetail-toolbar">
     {% if authorize("admin:sell:add") %}
         <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="add">
             <i class="pear-icon pear-icon-add"></i>
@@ -49,38 +25,24 @@
         </button>
     {% endif %}
 </script>
-
-{# 销售订单修改操作 #}
-<script type="text/html" id="sell-bar">
-    {% if authorize("admin:sell:edit") %}
+<script type="text/html" id="sellDetail-bar">
+    {% if authorize("admin:sell:detail:edit") %}
         <button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="edit"><i
                 class="pear-icon pear-icon-edit"></i>
         </button>
     {% endif %}
-    {% if authorize("admin:sell:detail") %}
-        <button class="pear-btn pear-btn-warming pear-btn-sm" lay-event="detail"><i
-                class="layui-icon layui-icon-vercode"></i>
-        </button>
-    {% endif %}
-    {% if authorize("admin:sell:remove") %}
+    {% if authorize("admin:sell:detail:remove") %}
         <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove"><i
                 class="pear-icon pear-icon-ashbin"></i>
         </button>
     {% endif %}
 </script>
-
-{# 单据创建时间 #}
 <script type="text/html" id="sell-createTime">
     {{ '  {{layui.util.toDateString(d.create_at,  "yyyy-MM-dd HH:mm:ss")}' |safe }}}
 </script>
-
-{# 单据更新时间 #}
 <script type="text/html" id="sell-updateTime">
     {{ '  {{layui.util.toDateString(d.update_at,  "yyyy-MM-dd HH:mm:ss")}' |safe }}}
 </script>
-
-{% include 'admin/common/footer.html' %}
-
 <script>
   layui.use(['table', 'dtree', 'form', 'jquery', 'popup', 'common'], function () {
     let table = layui.table
@@ -89,46 +51,45 @@
     let dtree = layui.dtree
     let popup = layui.popup
     let common = layui.common
-    let MODULE_PATH = '/admin/sell/'
+    let MODULE_PATH = '/bus/sell/'
 
     // 表格数据
     let cols = [
       [
-        {% if authorize("admin:sell:remove") %}
+        {% if authorize("admin:sell:detail:remove") %}
           { type: 'checkbox' },
         {% endif %}
-        { title: '销售单编号', field: 'sellOrderNo', align: 'center', width: 200 },
+        { title: '物料代码', field: 'materialNo', align: 'center', width: 120 },
+        { title: '数量', field: 'qty', align: 'center', width: 80 },
         { title: '备注', field: 'remark', align: 'center' },
         { title: '创建时间', field: 'create_at', templet: '#sell-createTime', align: 'center' },
         { title: '更新时间', field: 'update_at', templet: '#sell-updateTime', align: 'center' },
-        { title: '操作', toolbar: '#sell-bar', align: 'center', width: 150 }
+        { title: '操作', toolbar: '#sellDetail-bar', align: 'center', width: 120 }
       ]
     ]
 
     // 渲染表格数据
     table.render({
-      elem: '#sell-table',
-      url: MODULE_PATH + 'data',
+      elem: '#sellDetail-table',
+      url: MODULE_PATH + 'detail/data/'  + {{orderid}} ,
       page: true,
       cols: cols,
       skin: 'line',
-      height: 'full-148',
-      toolbar: '#sell-toolbar', /*工具栏*/
-      text: { none: '暂无销售订单信息' },
+      height: 'full-54',
+      toolbar: '#sellDetail-toolbar', /*工具栏*/
+      text: { none: '暂无订单明细信息' },
       defaultToolbar: [{ layEvent: 'refresh', icon: 'layui-icon-refresh' }, 'filter', 'print', 'exports'] /*默认工具栏*/
     })
 
-    table.on('tool(sell-table)', function (obj) {
+    table.on('tool(sellDetail-table)', function (obj) {
       if (obj.event === 'remove') {
         window.remove(obj)
       } else if (obj.event === 'edit') {
         window.edit(obj)
-      } else if (obj.event === 'detail') {
-        window.detail(obj)
       }
     })
 
-    table.on('toolbar(sell-table)', function (obj) {
+    table.on('toolbar(sellDetail-table)', function (obj) {
       if (obj.event === 'add') {
         window.add()
       } else if (obj.event === 'refresh') {
@@ -138,18 +99,13 @@
       }
     })
 
-    form.on('submit(sell-query)', function (data) {
-      window.refresh(data.field)
-      return false
-    })
-
     window.add = function () {
       layer.open({
         type: 2,
         title: '新增',
         shade: 0.1,
-        area: ['550px', '550px'],
-        content: MODULE_PATH + 'add'
+        area: ['550px', '340px'],
+        content: MODULE_PATH + 'detail/add/' + {{orderid}}
       })
     }
 
@@ -158,27 +114,17 @@
         type: 2,
         title: '修改',
         shade: 0.1,
-        area: ['550px', '500px'],
-        content: MODULE_PATH + 'edit/' + obj.data['id']
-      })
-    }
-
-    window.detail = function (obj) {
-      layer.open({
-        type: 2,
-        title: '订单明细',
-        shade: 0.1,
-        area: ['1000px', '500px'],
-        content: MODULE_PATH + 'detail/' + obj.data['id']
+        area: ['550px', '340px'],
+        content: MODULE_PATH + 'detail/edit/' + obj.data['id']
       })
     }
 
     window.remove = function (obj) {
-      layer.confirm('确定要删除该单据', { icon: 3, title: '提示' }, function (index) {
+      layer.confirm('确定要删除该物料', { icon: 3, title: '提示' }, function (index) {
         layer.close(index)
         let loading = layer.load()
         $.ajax({
-          url: MODULE_PATH + 'remove/' + obj.data['id'],
+          url: MODULE_PATH + 'detail/remove/' + obj.data['id'],
           dataType: 'json',
           type: 'delete',
           success: function (result) {
@@ -205,7 +151,7 @@
         return false
       }
       var ids = []
-      var hasCheck = table.checkStatus('sell-table')
+      var hasCheck = table.checkStatus('sellDetail-table')
       var hasCheckData = hasCheck.data
       if (hasCheckData.length > 0) {
         $.each(hasCheckData, function (index, element) {
@@ -213,7 +159,7 @@
         })
       }
       {#console.log(ids);#}
-      layer.confirm('确定要删除选中单据', {
+      layer.confirm('确定要删除选中物料', {
         icon: 3,
         title: '提示'
       }, function (index) {
@@ -221,7 +167,7 @@
         let loading = layer.load()
         $.ajax({
 
-          url: MODULE_PATH + 'batchRemove',
+          url: MODULE_PATH + 'detail/batchRemove',
           data: { ids: ids },
           dataType: 'json',
           type: 'delete',
@@ -229,7 +175,7 @@
             layer.close(loading)
             if (result.success) {
               popup.success(result.msg, function () {
-                table.reload('sell-table')
+                table.reload('sellDetail-table')
               })
             } else {
               popup.failure(result.msg)
@@ -240,7 +186,7 @@
     }
 
     window.refresh = function (param) {
-      table.reload('sell-table', { where: param })
+      table.reload('sellDetail-table', { where: param })
     }
   })
 </script>
