@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>物料管理</title>
+    {% include 'admin/common/header.html' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin/admin/css/other/user.css') }}"/>
+</head>
+<body class="pear-container">
+{# 查询表单 #}
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form" action="" lay-filter="material-query-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label">物料名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="name" placeholder="" class="layui-input">
+                </div>
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="material-query">
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <button type="reset" class="pear-btn pear-btn-md">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="user-left user-collasped">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div style="overflow: hidden">
+                <ul id="materialcategory-tree" class="material-tree" data-id="0"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+{# 物料表格 #}
+<div class="user-main user-collasped">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <table id="material-table" lay-filter="material-table"></table>
+        </div>
+    </div>
+</div>
+</body>
+{# 表格操作 #}
+<script type="text/html" id="material-toolbar">
+    {% if authorize("bus:material:add") %}
+        <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="add">
+            <i class="pear-icon pear-icon-add"></i>
+            新增
+        </button>
+    {% endif %}
+    {% if authorize("bus:material:remove") %}
+        <button class="pear-btn pear-btn-md" lay-event="batchRemove">
+            <i class="pear-icon pear-icon-ashbin"></i>
+            删除
+        </button>
+    {% endif %}
+    <button class="pear-btn pear-btn-md" lay-event="collasped">
+        <i class="pear-icon pear-icon-modular"></i>
+        高级
+    </button>
+</script>
+
+{# 物料修改操作 #}
+<script type="text/html" id="material-bar">
+    {% if authorize("bus:material:edit") %}
+        <button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="edit"><i
+                class="pear-icon pear-icon-edit"></i>
+        </button>
+    {% endif %}
+    {% if authorize("bus:material:remove") %}
+        <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove"><i
+                class="pear-icon pear-icon-ashbin"></i>
+        </button>
+    {% endif %}
+</script>
+
+{# 物料创建时间 #}
+<script type="text/html" id="material-createTime">
+    {{ '  {{layui.util.toDateString(d.create_at,  "yyyy-MM-dd HH:mm:ss")}' |safe }}}
+</script>
+
+{# 物料更新时间 #}
+<script type="text/html" id="material-updateTime">
+    {{ '  {{layui.util.toDateString(d.update_at,  "yyyy-MM-dd HH:mm:ss")}' |safe }}}
+</script>
+
+{% include 'admin/common/footer.html' %}
+
+<script>
+  layui.use(['table', 'dtree', 'form', 'jquery', 'popup', 'common'], function () {
+    let table = layui.table
+    let form = layui.form
+    let $ = layui.jquery
+    let dtree = layui.dtree
+    let popup = layui.popup
+    let common = layui.common
+    let MODULE_PATH = '/bus/material/'
+
+    // 表格数据
+    let cols = [
+      [
+        {% if authorize("bus:material:remove") %}
+          { type: 'checkbox' },
+        {% endif %}
+        { title: '物料名称', field: 'name', align: 'center', width: 100 },
+        { title: '说明', field: 'detail', align: 'center' },
+        { title: '物料分类', field: 'category', align: 'center' },
+        { title: '条码', field: 'barcode', align: 'center' },
+<!--        { title: '成本', field: 'cost', align: 'center' },-->
+<!--        { title: '价格', field: 'price', align: 'center' },-->
+<!--        { title: '单位', field: 'unit', align: 'center' },-->
+<!--        { title: '提醒门限', field: 'threshold', align: 'center' },-->
+<!--        { title: '供应商', field: 'vendor', align: 'center' },-->
+<!--        { title: '制造商', field: 'manufacturer', align: 'center' },-->
+<!--        { title: '最小包装数量', field: 'mpq', align: 'center' },-->
+<!--        { title: '最小起订量', field: 'moq', align: 'center' },-->
+        { title: '虚拟物料', field: 'virtual', align: 'center' },
+        { title: '重点关注', field: 'highlight', align: 'center' },
+        { title: '备注', field: 'remark', align: 'center' },
+        { title: '创建时间', field: 'create_time', templet: '#material-createTime', align: 'center' },
+        { title: '更新时间', field: 'update_time', templet: '#material-updateTime', align: 'center' },
+        { title: '操作', toolbar: '#material-bar', align: 'center', width: 130 }
+      ]
+    ]
+
+    // 渲染表格数据
+    table.render({
+      elem: '#material-table',
+      url: MODULE_PATH + 'data',
+      page: true,
+      cols: cols,
+      skin: 'line',
+      height: 'full-148',
+      toolbar: '#material-toolbar', /*工具栏*/
+      text: { none: '暂无物料信息' },
+      defaultToolbar: [{ layEvent: 'refresh', icon: 'layui-icon-refresh' }, 'filter', 'print', 'exports'] /*默认工具栏*/
+    })
+
+    // 树状图菜单
+    dtree.render({
+      elem: '#materialcategory-tree',
+      method: 'get',
+      url: '/bus/materialcategory/tree',
+      dataFormat: 'list',
+      line: true,
+      skin: 'laySimple',
+      icon: '-1',
+      response: { treeId: 'id', parentId: 'parent', title: 'code' },
+    })
+
+    // 菜单栏渲染
+    dtree.on('node(\'materialcategory-tree\')', function (obj) {
+      let field = form.val('material-query-form')
+      field.materialcategoryid = obj.param.nodeId
+      window.refresh(field)
+    })
+
+    table.on('tool(material-table)', function (obj) {
+      if (obj.event === 'remove') {
+        window.remove(obj)
+      } else if (obj.event === 'edit') {
+        window.edit(obj)
+      }
+    })
+
+    table.on('toolbar(material-table)', function (obj) {
+      if (obj.event === 'add') {
+        window.add()
+      } else if (obj.event === 'refresh') {
+        window.refresh()
+      } else if (obj.event === 'batchRemove') {
+        window.batchRemove(obj)
+      } else if (obj.event === 'collasped') {
+        $('.user-left').toggleClass('user-collasped')
+        $('.user-main').toggleClass('user-collasped')
+        table.resize()
+      }
+    })
+
+    form.on('submit(material-query)', function (data) {
+      window.refresh(data.field)
+      return false
+    })
+
+    window.add = function () {
+      layer.open({
+        type: 2,
+        title: '新增',
+        shade: 0.1,
+        area: ['550px', '550px'],
+        content: MODULE_PATH + 'add'
+      })
+    }
+
+    window.edit = function (obj) {
+      layer.open({
+        type: 2,
+        title: '修改',
+        shade: 0.1,
+        area: ['550px', '500px'],
+        content: MODULE_PATH + 'edit/' + obj.data['id']
+      })
+    }
+
+    window.remove = function (obj) {
+      layer.confirm('确定要删除该物料', { icon: 3, title: '提示' }, function (index) {
+        layer.close(index)
+        let loading = layer.load()
+        $.ajax({
+          url: MODULE_PATH + 'remove/' + obj.data['id'],
+          dataType: 'json',
+          type: 'delete',
+          success: function (result) {
+            layer.close(loading)
+            if (result.success) {
+              popup.success(result.msg, function () {
+                obj.del()
+              })
+            } else {
+              popup.failure(result.msg)
+            }
+          }
+        })
+      })
+    }
+
+    window.batchRemove = function (obj) {
+      let data = table.checkStatus(obj.config.id).data
+      if (data.length === 0) {
+        layer.msg('未选中数据', {
+          icon: 3,
+          time: 1000
+        })
+        return false
+      }
+      var ids = []
+      var hasCheck = table.checkStatus('material-table')
+      var hasCheckData = hasCheck.data
+      if (hasCheckData.length > 0) {
+        $.each(hasCheckData, function (index, element) {
+          ids.push(element.id)
+        })
+      }
+      {#console.log(ids);#}
+      layer.confirm('确定要删除选中物料', {
+        icon: 3,
+        title: '提示'
+      }, function (index) {
+        layer.close(index)
+        let loading = layer.load()
+        $.ajax({
+
+          url: MODULE_PATH + 'batchRemove',
+          data: { ids: ids },
+          dataType: 'json',
+          type: 'delete',
+          success: function (result) {
+            layer.close(loading)
+            if (result.success) {
+              popup.success(result.msg, function () {
+                table.reload('material-table')
+              })
+            } else {
+              popup.failure(result.msg)
+            }
+          }
+        })
+      })
+    }
+
+    window.refresh = function (param) {
+      table.reload('material-table', { where: param })
+    }
+  })
+</script>
+</html>

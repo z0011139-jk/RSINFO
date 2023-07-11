@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>联系人</title>
+    {% include 'admin/common/header.html' %}
+</head>
+<body class="pear-container">
+{# 查询表单 #}
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form" action="" lay-filter="contact-query-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label">名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="name" placeholder="" class="layui-input">
+                </div>
+
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="contact-query">
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <button type="reset" class="pear-btn pear-btn-md">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{# 联系人表格 #}
+<div class="layui-card">
+    <div class="layui-card-body">
+        <table id="contact-table" lay-filter="contact-table"></table>
+    </div>
+</div>
+</body>
+
+<script type="text/html" id="relation">
+    {{ "
+    {{#if (d.relation == '0') { }}
+    <span>供应商</span>
+    {{# }else if(d.relation == '1'){ }}
+    <span>客户</span>
+    {{# }else if(d.relation == '2'){ }}
+    <span>其他</span>
+    {{# } }}
+
+    " |safe }}
+
+</script>
+
+{# 表格操作 #}
+<script type="text/html" id="contact-toolbar">
+    {% if authorize("bus:contact:add") %}
+        <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="add">
+            <i class="pear-icon pear-icon-add"></i>
+            新增
+        </button>
+    {% endif %}
+    {% if authorize("bus:contact:remove") %}
+        <button class="pear-btn pear-btn-md" lay-event="batchRemove">
+            <i class="pear-icon pear-icon-ashbin"></i>
+            删除
+        </button>
+    {% endif %}
+</script>
+
+{# 联系人修改操作 #}
+<script type="text/html" id="contact-bar">
+    {% if authorize("bus:contact:edit") %}
+        <button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="edit"><i
+                class="pear-icon pear-icon-edit"></i>
+        </button>
+    {% endif %}
+    {% if authorize("bus:contact:remove") %}
+        <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove"><i
+                class="pear-icon pear-icon-ashbin"></i>
+        </button>
+    {% endif %}
+</script>
+
+{% include 'admin/common/footer.html' %}
+
+<script>
+  layui.use(['table', 'dtree', 'form', 'jquery', 'popup', 'common'], function () {
+    let table = layui.table
+    let form = layui.form
+    let $ = layui.jquery
+    let dtree = layui.dtree
+    let popup = layui.popup
+    let common = layui.common
+    let MODULE_PATH = '/bus/contact/'
+
+    // 表格数据
+    let cols = [
+      [
+        {% if authorize("bus:contact:remove") %}
+          { type: 'checkbox' },
+        {% endif %}
+        { title: '联系人名称', field: 'name', align: 'center'},
+        { title: '联系人别名', field: 'shortname', align: 'center'},
+        { title: '地址', field: 'address', align: 'center'},
+        { title: '税号', field: 'taxid', align: 'center'},
+        { title: '联系人', field: 'contacter', align: 'center'},
+        { title: '电话', field: 'phone', align: 'center'},
+        { title: '邮箱', field: 'email', align: 'center'},
+        { title: '网站', field: 'website', align: 'center'},
+        { title: '备注', field: 'remark', align: 'center' },
+        { title: '关系', field: 'relation', align: 'center', templet: '#relation' },
+        { title: '操作', toolbar: '#contact-bar', align: 'center', width: 150 }
+      ]
+    ]
+
+    // 渲染表格数据
+    table.render({
+      elem: '#contact-table',
+      url: MODULE_PATH + 'data',
+      page: true,
+      cols: cols,
+      skin: 'line',
+      height: 'full-148',
+      toolbar: '#contact-toolbar', /*工具栏*/
+      text: { none: '暂无联系人信息' },
+      defaultToolbar: [{ layEvent: 'refresh', icon: 'layui-icon-refresh' }, 'filter', 'print', 'exports'] /*默认工具栏*/
+    })
+
+    table.on('tool(contact-table)', function (obj) {
+      if (obj.event === 'remove') {
+        window.remove(obj)
+      } else if (obj.event === 'edit') {
+        window.edit(obj)
+      } else if (obj.event === 'detail') {
+        window.detail(obj)
+      }
+    })
+
+    table.on('toolbar(contact-table)', function (obj) {
+      if (obj.event === 'add') {
+        window.add()
+      } else if (obj.event === 'refresh') {
+        window.refresh()
+      } else if (obj.event === 'batchRemove') {
+        window.batchRemove(obj)
+      }
+    })
+
+    form.on('submit(contact-query)', function (data) {
+      window.refresh(data.field)
+      return false
+    })
+
+    window.add = function () {
+      layer.open({
+        type: 2,
+        title: '新增',
+        shade: 0.1,
+        area: ['550px', '550px'],
+        content: MODULE_PATH + 'add'
+      })
+    }
+
+    window.edit = function (obj) {
+      layer.open({
+        type: 2,
+        title: '修改',
+        shade: 0.1,
+        area: ['550px', '500px'],
+        content: MODULE_PATH + 'edit/' + obj.data['id']
+      })
+    }
+
+    window.detail = function (obj) {
+      layer.open({
+        type: 2,
+        title: '订单明细',
+        shade: 0.1,
+        area: ['1000px', '500px'],
+        content: MODULE_PATH + 'detail/' + obj.data['id']
+      })
+    }
+
+    window.remove = function (obj) {
+      layer.confirm('确定要删除该联系人', { icon: 3, title: '提示' }, function (index) {
+        layer.close(index)
+        let loading = layer.load()
+        $.ajax({
+          url: MODULE_PATH + 'remove/' + obj.data['id'],
+          dataType: 'json',
+          type: 'delete',
+          success: function (result) {
+            layer.close(loading)
+            if (result.success) {
+              popup.success(result.msg, function () {
+                obj.del()
+              })
+            } else {
+              popup.failure(result.msg)
+            }
+          }
+        })
+      })
+    }
+
+    window.batchRemove = function (obj) {
+      let data = table.checkStatus(obj.config.id).data
+      if (data.length === 0) {
+        layer.msg('未选中数据', {
+          icon: 3,
+          time: 1000
+        })
+        return false
+      }
+      var ids = []
+      var hasCheck = table.checkStatus('contact-table')
+      var hasCheckData = hasCheck.data
+      if (hasCheckData.length > 0) {
+        $.each(hasCheckData, function (index, element) {
+          ids.push(element.id)
+        })
+      }
+      {#console.log(ids);#}
+      layer.confirm('确定要删除选中联系人', {
+        icon: 3,
+        title: '提示'
+      }, function (index) {
+        layer.close(index)
+        let loading = layer.load()
+        $.ajax({
+
+          url: MODULE_PATH + 'batchRemove',
+          data: { ids: ids },
+          dataType: 'json',
+          type: 'delete',
+          success: function (result) {
+            layer.close(loading)
+            if (result.success) {
+              popup.success(result.msg, function () {
+                table.reload('contact-table')
+              })
+            } else {
+              popup.failure(result.msg)
+            }
+          }
+        })
+      })
+    }
+
+    window.refresh = function (param) {
+      table.reload('contact-table', { where: param })
+    }
+  })
+</script>
+</html>

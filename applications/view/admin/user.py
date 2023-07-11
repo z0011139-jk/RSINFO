@@ -37,7 +37,7 @@ def data():
     if username:
         filters.append(User.realname.contains(username))
     if dept_id:
-        filters.append(User.realname == dept_id)
+        filters.append(User.dept_id == dept_id)
 
     # print(*filters)
     query = db.session.query(
@@ -57,9 +57,9 @@ def data():
         } for user, dept in query.items],
         count=query.total)
 
-    # 用户增加
 
 
+# 用户增加
 @admin_user.get('/add')
 @authorize("admin:user:add", log=True)
 def add():

@@ -12,4 +12,5 @@ from .admin_mail import Mail
 from .bus_sell import Sell
 from .bus_selldetail import SellDetail
 from .bus_material import Material
+from .bus_material_category import MaterialCategory
 from .bus_contact import Contact

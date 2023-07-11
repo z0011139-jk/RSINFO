@@ -151,12 +151,14 @@ def savedetail():
     db.session.commit()
     return success_api(msg="成功")
 
+
 # 销售单明细编辑
 @bus_sell.get('/detail/edit/<int:id>')
 @authorize("admin:sell:detail:edit", log=True)
 def editdetail(id):
     sd = get_one_by_id(model=SellDetail, id=id)
     return render_template('bus/sell/editdetail.html', selldetail=sd)
+
 
 # 更新销售单明细
 @bus_sell.put('/detail/update')
@@ -175,6 +177,7 @@ def updatedetail():
         return fail_api(msg="更新销售单明细失败")
     return success_api(msg="更新销售单明细成功")
 
+
 # 销售单明细删除
 @bus_sell.delete('/detail/remove/<int:id>')
 @authorize("admin:sell:detail:remove", log=True)
@@ -184,6 +187,7 @@ def removedetail(id):
     if not sd:
         return fail_api(msg="销售单明细删除失败")
     return success_api(msg="销售单明细删除成功")
+
 
 # 批量删除
 @bus_sell.delete('/detail/batchRemove')

@@ -5,6 +5,13 @@
     height: calc(100vh - 247px);
     margin-top: 20px;
 }
+.material-tree {
+    width: 100%;
+    height: -webkit-calc(100vh - 160px);
+    height: -moz-calc(100vh - 160px);
+    height: calc(100vh - 160px);
+    margin-top: 20px;
+}
 .dtree-laySimple-item-this{
     background-color: transparent!important;
 }
