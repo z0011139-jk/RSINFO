@@ -79,6 +79,20 @@
     {% endif %}
 </script>
 
+{# 真实物料与虚拟物料 #}
+<script type="text/html" id="material-virtual">
+    <input type="checkbox" name="virtual" value="{{ "{{ d.id }}" }}" lay-skin="switch" lay-text="真实物料|虚拟物料"
+           lay-filter="material-virtual"
+            {{ "{{# if(d.virtual==1){ }} checked {{# } }}" }} />
+</script>
+
+{# 关注与取消关注 #}
+<script type="text/html" id="material-highlight">
+    <input type="checkbox" name="highlight" value="{{ "{{ d.id }}" }}" lay-skin="switch" lay-text="关注|不关注"
+           lay-filter="material-highlight"
+            {{ "{{# if(d.highlight==1){ }} checked {{# } }}" }} />
+</script>
+
 {# 物料创建时间 #}
 <script type="text/html" id="material-createTime">
     {{ '  {{layui.util.toDateString(d.create_at,  "yyyy-MM-dd HH:mm:ss")}' |safe }}}
@@ -119,11 +133,12 @@
 <!--        { title: '制造商', field: 'manufacturer', align: 'center' },-->
 <!--        { title: '最小包装数量', field: 'mpq', align: 'center' },-->
 <!--        { title: '最小起订量', field: 'moq', align: 'center' },-->
-        { title: '虚拟物料', field: 'virtual', align: 'center' },
-        { title: '重点关注', field: 'highlight', align: 'center' },
+
+        { title: '虚拟物料', field: 'virtual', align: 'center', templet: '#material-virtual', width: 120 },
+        { title: '关注', field: 'highlight', align: 'center', templet: '#material-highlight', width: 120 },
         { title: '备注', field: 'remark', align: 'center' },
-        { title: '创建时间', field: 'create_time', templet: '#material-createTime', align: 'center' },
-        { title: '更新时间', field: 'update_time', templet: '#material-updateTime', align: 'center' },
+<!--        { title: '创建时间', field: 'create_time', templet: '#material-createTime', align: 'center' },-->
+<!--        { title: '更新时间', field: 'update_time', templet: '#material-updateTime', align: 'center' },-->
         { title: '操作', toolbar: '#material-bar', align: 'center', width: 130 }
       ]
     ]

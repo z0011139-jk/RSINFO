@@ -18,3 +18,4 @@ class Contact(db.Model):
     create_time = db.Column(db.DateTime, default=datetime.datetime.now, comment='创建时间')
     update_time = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now,
                             comment='更新时间')
+    deleted = db.Column(db.Integer, comment='逻辑删除标志位')

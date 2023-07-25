@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>用户编辑</title>
+    <title>物料编辑</title>
     {% include 'admin/common/header.html' %}
 </head>
 <body>
@@ -13,43 +13,109 @@
                 <div class="layui-form-item layui-hide">
                     <label class="layui-form-label">编号</label>
                     <div class="layui-input-block">
-                        <input type="text" value="{{ user.id }}" name="userId" lay-verify="title"
-                               autocomplete="off" placeholder="请输入标题" class="layui-input">
+                        <input type="text" value="{{ material.id }}" name="id" lay-verify="title"
+                               autocomplete="off" placeholder="" class="layui-input">
                     </div>
                 </div>
                 <div class="layui-form-item">
-                    <label class="layui-form-label">账号</label>
+                    <label class="layui-form-label">名称</label>
                     <div class="layui-input-block">
-                        <input type="text" value="{{ user.username }}" name="username" lay-verify="title"
-                               autocomplete="off" placeholder="请输入标题" class="layui-input">
+                        <input type="text" value="{{ material.name }}" name="name" lay-verify="title"
+                               autocomplete="off" placeholder="请输入名称" class="layui-input">
                     </div>
                 </div>
                 <div class="layui-form-item">
-                    <label class="layui-form-label">姓名</label>
+                    <label class="layui-form-label">说明</label>
                     <div class="layui-input-block">
-                        <input type="text" value="{{ user.realname }}" name="realName" lay-verify="title"
-                               autocomplete="off" placeholder="请输入标题"
+                        <input type="text"  value="{{ material.detail }}"  name="detail" lay-verify="title" autocomplete="off" placeholder="请输入说明"
                                class="layui-input">
                     </div>
                 </div>
                 <div class="layui-form-item">
-                    <label class="layui-form-label">部门</label>
+                    <label class="layui-form-label">分类</label>
                     <div class="layui-input-block">
-                        <ul id="selectParent" name="deptId" class="dtree" data-id="0"></ul>
+                        <ul id="materialcategory" name="category" class="dtree" data-id="0"></ul>
                     </div>
                 </div>
-
-
                 <div class="layui-form-item">
-                    <label class="layui-form-label">角色</label>
+                    <label class="layui-form-label">条码</label>
                     <div class="layui-input-block">
-                        {% for role in roles %}
-                            <input{% if role.id in checked_roles %}
-                                checked
-                            {% endif %}
-                                value="{{ role.id }}" title="{{ role.name }}" type="checkbox"
-                                name="roleIds" lay-skin="primary">
-                        {% endfor %}
+                        <input type="text"  value="{{ material.barcode }}" name="barcode" lay-verify="title" autocomplete="off" placeholder="请输入条码"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">成本</label>
+                    <div class="layui-input-block">
+                        <input type="text"  value="{{ material.cost }}" name="cost" lay-verify="title" autocomplete="off" placeholder="请输入成本"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">价格</label>
+                    <div class="layui-input-block">
+                        <input type="text"  value="{{ material.price }}" name="price" lay-verify="title" autocomplete="off" placeholder="请输入价格"
+                               class="layui-input">
+                    </div>
+                </div>
+                 <div class="layui-form-item">
+                    <label class="layui-form-label">单位</label>
+                    <div class="layui-input-block">
+                        <input type="text"  value="{{ material.unit }}" name="unit" lay-verify="title" autocomplete="off" placeholder="请输入单位"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">最低库存</label>
+                    <div class="layui-input-block">
+                        <input type="text"  value="{{ material.threshold }}" name="threshold" lay-verify="title" autocomplete="off" placeholder="请输入最低库存"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">供应商</label>
+                    <div class="layui-input-block">
+                        <input type="text"  value="{{ material.vendor }}" name="vendor" lay-verify="title" autocomplete="off" placeholder="请输入供应商"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">制造商</label>
+                    <div class="layui-input-block">
+                        <input type="text"  value="{{ material.manufacturer }}" name="manufacturer" lay-verify="title" autocomplete="off" placeholder="请输入制造商"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">最小包装数量</label>
+                    <div class="layui-input-block">
+                        <input type="text"  value="{{ material.mpq }}" name="mpq" lay-verify="title" autocomplete="off" placeholder="请输入最小包装数量"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">最小起订量</label>
+                    <div class="layui-input-block">
+                        <input type="text"  value="{{ material.moq }}" name="moq" lay-verify="title" autocomplete="off" placeholder="请输入最小起订量"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">真实物料</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="virtual" {% if material.virtual == 1 %}checked {% endif %} value="1"
+                               title="是">
+                        <input type="radio" name="virtual" {% if material.virtual == 0 %}checked {% endif %} value="0"
+                               title="否">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">重点关注</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="highlight" {% if material.highlight == 1 %}checked {% endif %} value="1"
+                               title="是">
+                        <input type="radio" name="highlight" {% if material.highlight == 0 %}checked {% endif %} value="0"
+                               title="否">
                     </div>
                 </div>
             </div>
@@ -58,7 +124,7 @@
     <div class="bottom">
         <div class="button-container">
             <button type="submit" class="pear-btn pear-btn-primary pear-btn-sm" lay-submit=""
-                    lay-filter="user-update">
+                    lay-filter="material-update">
                 <i class="layui-icon layui-icon-ok"></i>
                 提交
             </button>
@@ -76,25 +142,20 @@
     let $ = layui.jquery
     let dtree = layui.dtree
 
-    dtree.renderSelect({
-      elem: '#selectParent',
-      url: '/dept/tree',
+     dtree.renderSelect({
+      elem: '#materialcategory',
+      url: '/bus/materialcategory/tree',
       method: 'get',
-      selectInputName: { nodeId: 'deptId', context: 'deptName' },
+      selectInputName: { nodeId: 'category', context: 'code' },
       skin: 'layui',
       dataFormat: 'list',
-      response: { treeId: 'deptId', parentId: 'parentId', title: 'deptName' },
-      selectInitVal: "{{ user.dept_id }}"
+      response: { treeId: 'id', parentId: 'parent', title: 'code' },
+      selectInitVal: "{{ material.category }}"
     })
-    form.on('submit(user-update)', function (data) {
-      let roleIds = ''
-      $('input[type=checkbox]:checked').each(function () {
-        roleIds += $(this).val() + ','
-      })
-      roleIds = roleIds.substr(0, roleIds.length - 1)
-      data.field.roleIds = roleIds
+
+    form.on('submit(material-update)', function (data) {
       $.ajax({
-        url: '/admin/user/update',
+        url: '/bus/material/update',
         data: JSON.stringify(data.field),
         dataType: 'json',
         contentType: 'application/json',
@@ -103,7 +164,7 @@
           if (result.success) {
             layer.msg(result.msg, { icon: 1, time: 1000 }, function () {
               parent.layer.close(parent.layer.getFrameIndex(window.name))//关闭当前页
-              parent.layui.table.reload('user-table')
+              parent.layui.table.reload('material-table')
             })
           } else {
             layer.msg(result.msg, { icon: 2, time: 1000 })

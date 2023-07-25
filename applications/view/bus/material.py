@@ -76,7 +76,7 @@ def save():
     req = request.get_json(force=True)
     name = str_escape(req.get("name"))
     detail = str_escape(req.get("detail")) if (str_escape(req.get("detail")) is not None) else ''
-    category = str_escape(req.get("categoryid"))
+    category = str_escape(req.get("category"))
     barcode = str_escape(req.get("barcode")) if (str_escape(req.get("barcode")) is not None) else ''
     cost = str_escape(req.get("cost")) if (str_escape(req.get("cost")) is not None) else ''
     price = str_escape(req.get("price")) if (str_escape(req.get("price")) is not None) else ''
@@ -84,8 +84,8 @@ def save():
     threshold = str_escape(req.get("threshold")) if (str_escape(req.get("threshold")) is not None) else ''
     vendor = str_escape(req.get("vendor")) if (str_escape(req.get("vendor")) is not None) else ''
     manufacturer = str_escape(req.get("manufacturer")) if (str_escape(req.get("manufacturer")) is not None) else ''
-    mpq = str_escape(req.get("mpq")) if (str_escape(req.get("mpq")) is not None) else ''
-    moq = str_escape(req.get("moq")) if (str_escape(req.get("moq")) is not None) else ''
+    mpq = str_escape(req.get("mpq")) if (str_escape(req.get("mpq")) is not None) else 1
+    moq = str_escape(req.get("moq")) if (str_escape(req.get("moq")) is not None) else 0
     virtual = str_escape(req.get("virtual"))
     highlight = str_escape(req.get("highlight"))
     remark = str_escape(req.get("remark")) if (str_escape(req.get("remark")) is not None) else ''
@@ -142,7 +142,7 @@ def update():
     id = str_escape(req_json.get("id"))
     name = str_escape(req_json.get("name"))
     detail = str_escape(req_json.get("detail")) if (str_escape(req_json.get("detail")) is not None) else ''
-    category = str_escape(req_json.get("categoryid")) if (str_escape(req_json.get("categoryid")) is not None) else ''
+    category = str_escape(req_json.get("category"))
     barcode = str_escape(req_json.get("barcode")) if (str_escape(req_json.get("barcode")) is not None) else ''
     cost = str_escape(req_json.get("cost")) if (str_escape(req_json.get("cost")) is not None) else ''
     price = str_escape(req_json.get("price")) if (str_escape(req_json.get("price")) is not None) else ''
@@ -150,11 +150,14 @@ def update():
     threshold = str_escape(req_json.get("threshold")) if (str_escape(req_json.get("threshold")) is not None) else ''
     vendor = str_escape(req_json.get("vendor")) if (str_escape(req_json.get("vendor")) is not None) else ''
     manufacturer = str_escape(req_json.get("manufacturer")) if (str_escape(req_json.get("manufacturer")) is not None) else ''
-    mpq = str_escape(req_json.get("mpq")) if (str_escape(req_json.get("mpq")) is not None) else ''
-    moq = str_escape(req_json.get("moq")) if (str_escape(req_json.get("moq")) is not None) else ''
+    mpq = str_escape(req_json.get("mpq")) if (str_escape(req_json.get("mpq")) is not None) else 1
+    moq = str_escape(req_json.get("moq")) if (str_escape(req_json.get("moq")) is not None) else 0
     virtual = str_escape(req_json.get("virtual"))
     highlight = str_escape(req_json.get("highlight"))
     remark = str_escape(req_json.get("remark")) if (str_escape(req_json.get("remark")) is not None) else ''
+
+    if not name:
+        return fail_api(msg="物料名称不得为空")
 
     Material.query.filter_by(id=id).update({
         'name': name,
